@@ -1,0 +1,33 @@
+---
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates (Ubuntu)
+    apt:
+      upgrade: dist
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "Ubuntu"
+
+  - name: update repository index (CentOS)
+    yum:
+      update_only: yes
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "CentOS"
+
+- hosts: elasticstack
+  become: true
+  roles:
+    - elasticstack
+
+- hosts: igp
+  become: true
+  roles:
+    - igp
+
+- hosts: lampstack
+  become: true
+  roles:
+    - lampstack

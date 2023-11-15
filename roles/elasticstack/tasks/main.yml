@@ -1,0 +1,103 @@
+- name: install GPG package (Ubuntu)
+  apt:
+    name: gnupg
+    state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: add elasticsearch apt repository (Ubuntu)
+  apt_repository:
+    repo: "deb https://artifacts.elastic.co/packages/7.x/apt stable main"
+    state: present
+  when: ansible_distribution == "Ubuntu"
+  become: yes
+
+- name: add elasticsearch yum repository (CentOS)
+  yum_repository:
+    name: elasticsearch
+    description: Elasticsearch repository
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: yes
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    enabled: yes
+  when: ansible_distribution == "CentOS"
+  become: yes
+
+- name: install elasticsearch
+  package:
+    name: elasticsearch
+    state: latest
+  become: yes
+
+- name: start elasticsearch service
+  service:
+    name: elasticsearch
+    state: started
+    enabled: yes
+  become: yes
+
+- name: install kibana (Ubuntu)
+  apt:
+    name: kibana
+    state: latest
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: install kibana (Ubuntu)
+  apt:
+    name: kibana
+    state: latest
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: download kibana (CentOS)
+  get_url:
+    url: https://artifacts.elastic.co/downloads/kibana/kibana-8.4.3-x86_64.rpm
+    dest: /tmp/kibana-8.4.3-x86_64.rpm
+    validate_certs: no
+  when: ansible_distribution == "CentOS"
+
+- name: install kibana (CentOS)
+  yum:
+    name: /tmp/kibana-8.4.3-x86_64.rpm
+    state: latest
+    update_cache: yes
+  when: ansible_distribution == "CentOS"
+
+- name: start kibana
+  service:
+    name: kibana
+    state: restarted
+
+- name: install logstash (Ubuntu)
+  apt:
+    name: logstash
+    state: latest
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: download logstash (CentOS)
+  get_url:
+    url: https://artifacts.elastic.co/downloads/logstash/logstash-7.8.0.rpm
+    dest: /tmp/logstash-7.8.0.rpm
+    validate_certs: no
+  when: ansible_distribution == "CentOS"
+
+- name: install logstash (CentOS)
+  yum:
+    name: /tmp/logstash-7.8.0.rpm
+    state: present
+  when: ansible_distribution == "CentOS"
+
+- name: start logstash
+  service:
+    name: logstash
+    state: restarted
+    enabled: yes
+
+- name: installation of nagios (Ubuntu)
+  apt:
+    name:
+      - nagios4
+    state: latest
+    update_cache: yes
+  when: ansible_distribution == "Ubuntu"

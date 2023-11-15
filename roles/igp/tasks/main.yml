@@ -1,0 +1,78 @@
+- name: install prometheus for ubuntu
+  apt:
+    name:
+      - prometheus
+    state: latest
+  when: ansible_distribution == "Ubuntu"
+
+- name: install prometheus for centos
+  yum:
+    name:
+      - epel-release
+      - snapd
+    state: latest
+  when: ansible_distribution == "CentOS"
+
+- name: enabling snapd
+  command: systemctl enable --now snapd.socket
+  when: ansible_distribution == "CentOS"
+
+- name: prometheus for CentOS
+  command: snap install prometheus --classic
+  when: ansible_distribution == "CentOS"
+
+- name: download influxdb package (Ubuntu)
+  shell: curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+  when: ansible_distribution == "Ubuntu"
+
+- name: install Influxdb (Ubuntu)
+  apt:
+    name: influxdb
+    state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: download influxdb package (CentOS)
+  get_url:
+    url: https://repos.influxdata.com/rhel/8/x86_64/stable/influxdb-1.8.5.x86_64.rpm
+    dest: /tmp/influxdb-1.8.5.x86_64.rpm
+  when: ansible_distribution == "CentOS"
+
+- name: install Influxdb (CentOS)
+  yum:
+    name: /tmp/influxdb-1.8.5.x86_64.rpm
+    state: present
+  when: ansible_distribution == "CentOS"
+
+- name: start influxdb
+  service:
+    name: influxdb
+    state: restarted
+    enabled: yes
+
+- name: install grafana package (Ubuntu)
+  shell: wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add - | sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+  when: ansible_distribution == "Ubuntu"
+
+- name: install grafana (Ubuntu)
+  apt:
+    name: grafana
+    state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: install grafana package (CentOS)
+  get_url:
+    url: https://dl.grafana.com/enterprise/release/grafana-enterprise-9.2.2-1.x86_64.rpm
+    dest: /tmp/grafana-enterprise-9.2.2-1.x86_64.rpm
+  when: ansible_distribution == "CentOS"
+
+- name: install grafana (CentOS)
+  yum:
+    name: /tmp/grafana-enterprise-9.2.2-1.x86_64.rpm
+    state: present
+  when: ansible_distribution == "CentOS"
+
+- name: start grafana
+  service:
+    name: grafana-server
+    state: restarted
+    enabled: yes
